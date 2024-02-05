@@ -1,10 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    mode: 'jit',
     content: ['./public/**/*.html'],
     purge: ['./public/**/*.html'],
     theme: {
         extend: {},
     },
-    plugins: [require("daisyui")],
+    plugins: [
+        require("@tailwindcss/typography"),
+        require("daisyui")
+    ],
+    darkMode: ["class", '[data-theme="dark"]'],
+    daisyui: {
+        themes: ["light", "dark"],
+    }
 }

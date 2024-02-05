@@ -2,15 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/katallaxie/pkg/logger"
 	g "github.com/maragudk/gomponents"
 	c "github.com/maragudk/gomponents/components"
 	"github.com/maragudk/gomponents/html"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/github"
 	"github.com/spf13/cobra"
+	fiber_goth "github.com/zeiss/fiber-goth"
 	htmx "github.com/zeiss/fiber-htmx"
 )
 
@@ -46,8 +52,22 @@ func run(ctx context.Context) error {
 
 	logger.RedirectStdLog(logger.LogSink)
 
+	goth.UseProviders(
+		github.New(os.Getenv("GITHUB_KEY"), os.Getenv("GITHUB_SECRET"), "http://localhost:3000/auth/github/callback"),
+	)
+
+	sess := session.Config{
+		KeyLookup:      fmt.Sprintf("cookie:%s", gothic.SessionName),
+		CookieHTTPOnly: true,
+	}
+	fiber_goth.ConfigDefault.Session = fiber_goth.NewSessionStore(session.New(sess))
+
 	app := fiber.New()
 	app.Static("/static", "./public")
+
+	app.Get("/login/:provider", fiber_goth.NewBeginAuthHandler())
+	app.Get("/auth/:provider/callback/", fiber_goth.NewCompleteAuthHandler())
+	app.Get("/logout", fiber_goth.NewLogoutHandler())
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		page := c.HTML5(c.HTML5Props{
