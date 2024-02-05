@@ -1,0 +1,17 @@
+{
+    "scripts": {
+        "build": "esbuild app.ts --bundle --outfile=public/app.js",
+        "start-server": "air -c ./.air.toml",
+        "watch": "browser-sync start --files css/*.css --port 3001 --proxy localhost:3000",
+        "watch:styles": "tailwind -i 'styles.css' -o 'public/styles.css' --watch",
+        "dev": "concurrently --kill-others \"npm run watch\" \"npm run start-server\" \"npm run watch:styles\""
+    },
+    "devDependencies": {
+        "browser-sync": "^2.29.3",
+        "concurrently": "^8.2.2",
+        "daisyui": "^4.6.1",
+        "esbuild": "0.20.0",
+        "htmx.org": "^1.9.10",
+        "tailwindcss": "^3.3.3"
+    }
+}
